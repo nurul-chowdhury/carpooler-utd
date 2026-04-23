@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carpooler | UTD Student Carpool Prototype</title>
+  <meta name="description" content="A UTD-focused student carpool prototype for safe, verified home-to-campus and campus-to-home rides." />
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --soft: #f8fafc;
+      --dark: #020617;
+      --green: #047857;
+      --green-bg: #ecfdf5;
+      --green-line: #a7f3d0;
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --radius: 24px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    button, input, select, textarea { font: inherit; }
+    .container { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255,255,255,.86);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-inner {
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 44px; height: 44px; border-radius: 16px;
+      background: var(--dark); color: #fff;
+      display: grid; place-items: center;
+      box-shadow: var(--shadow);
+    }
+    .brand h1 { margin: 0; font-size: 19px; line-height: 1.1; }
+    .brand p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: #475569;
+      background: var(--soft);
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 16px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: .2s ease;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(15,23,42,.08); }
+    .btn.primary { background: var(--dark); color: #fff; border-color: var(--dark); }
+    .btn.light { background: #fff; color: var(--dark); border-color: #fff; }
+    .btn.ghost-dark { background: transparent; color: #fff; border-color: rgba(255,255,255,.18); }
+    .btn.small { padding: 8px 11px; border-radius: 12px; font-size: 13px; }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 24px;
+      align-items: stretch;
+      padding-top: 32px;
+    }
+    .hero {
+      background: var(--dark);
+      color: #fff;
+      border-radius: 32px;
+      padding: 34px;
+      box-shadow: var(--shadow);
+    }
+    .hero .pill { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.13); }
+    .hero h2 {
+      margin: 22px 0 0;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: .98;
+      letter-spacing: -0.05em;
+      max-width: 780px;
+    }
+    .hero p {
+      color: #cbd5e1;
+      line-height: 1.65;
+      max-width: 690px;
+      margin: 18px 0 0;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+    .hero-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 28px; }
+    .metric-dark { background: rgba(255,255,255,.1); border-radius: 20px; padding: 16px; }
+    .metric-dark strong { font-size: 25px; display: block; }
+    .metric-dark span { color: #cbd5e1; font-size: 13px; }
+    .stat-stack { display: grid; gap: 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(15,23,42,.03);
+    }
+    .stat { display: flex; align-items: flex-start; gap: 14px; padding: 22px; }
+    .iconbox {
+      width: 46px; height: 46px; border-radius: 16px;
+      background: #f1f5f9;
+      display: grid; place-items: center;
+      color: var(--ink);
+      flex: 0 0 auto;
+    }
+    .stat p { margin: 0; color: var(--muted); font-size: 14px; }
+    .stat strong { display: block; margin-top: 4px; font-size: 28px; letter-spacing: -0.03em; }
+    .stat small { display: block; margin-top: 3px; color: var(--muted); }
+    .tabs { display: flex; gap: 10px; overflow-x: auto; padding: 28px 0 12px; }
+    .tab { white-space: nowrap; }
+    .tab.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+    .content { padding: 12px 0 36px; }
+    .find-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; }
+    .panel { padding: 22px; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .panel h3 { margin: 0; font-size: 21px; letter-spacing: -0.02em; }
+    .panel p { color: var(--muted); margin: 6px 0 0; }
+    .seg { display: flex; gap: 8px; flex-wrap: wrap; }
+    .searchbox {
+      margin-top: 18px;
+      display: flex; align-items: center; gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--soft);
+      padding: 11px 14px;
+    }
+    .searchbox input { border: 0; outline: 0; background: transparent; flex: 1; min-width: 120px; }
+    .rides { display: grid; gap: 16px; margin-top: 18px; }
+    .ride { padding: 0; overflow: hidden; transition: .2s ease; }
+    .ride:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .ride-inner { display: flex; justify-content: space-between; gap: 20px; padding: 20px; }
+    .ride-main { display: flex; gap: 14px; min-width: 0; }
+    .avatar {
+      width: 50px; height: 50px; border-radius: 16px;
+      background: var(--dark); color: #fff;
+      display: grid; place-items: center;
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+    .ride-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .ride-title h4 { margin: 0; font-size: 18px; letter-spacing: -0.02em; }
+    .verified { color: var(--green); background: var(--green-bg); border-color: var(--green-line); }
+    .meta { display: flex; flex-wrap: wrap; gap: 9px 16px; color: #475569; margin-top: 9px; font-size: 14px; }
+    .meta span { display: inline-flex; align-items: center; gap: 6px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .matchbox { min-width: 200px; background: var(--soft); border-radius: 20px; padding: 16px; align-self: center; }
+    .row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; margin: 8px 0; }
+    .bar { height: 8px; border-radius: 999px; background: #e2e8f0; overflow: hidden; margin: 9px 0; }
+    .bar span { display: block; height: 100%; background: var(--dark); border-radius: inherit; }
+    .map { padding: 20px; }
+    .map-art {
+      position: relative; height: 300px; margin-top: 18px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, #f1f5f9, #fff, #e2e8f0);
+      overflow: hidden;
+    }
+    .map-label {
+      position: absolute;
+      border-radius: 18px;
+      background: white;
+      padding: 13px 15px;
+      box-shadow: 0 10px 22px rgba(15,23,42,.08);
+      z-index: 2;
+    }
+    .map-label small { color: var(--muted); display: block; }
+    .map-label strong { font-size: 14px; }
+    .map-label.dark { background: var(--dark); color: #fff; right: 26px; bottom: 26px; }
+    .map-label.dark small { color: #cbd5e1; }
+    .map-label.home { left: 26px; top: 28px; }
+    .car-dot {
+      position: absolute; left: 52%; top: 42%;
+      border-radius: 999px; background: #fff;
+      padding: 12px; box-shadow: var(--shadow); z-index: 3;
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; margin-top: 22px; }
+    label span { display: block; color: #334155; font-size: 14px; font-weight: 700; margin-bottom: 7px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 13px;
+      outline: none;
+      background: #fff;
+      color: var(--ink);
+    }
+    input:focus, select:focus, textarea:focus { border-color: #0f172a; box-shadow: 0 0 0 3px rgba(15,23,42,.12); }
+    textarea { min-height: 112px; resize: vertical; }
+    .dark-card { background: var(--dark); color: #fff; }
+    .dark-card p { color: #cbd5e1; }
+    .tip { display: flex; gap: 12px; margin: 17px 0; color: #cbd5e1; line-height: 1.5; }
+    .safety-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+    .safety-card { padding: 24px; }
+    .safety-card h4 { margin: 15px 0 0; font-size: 18px; }
+    .safety-card p { color: var(--muted); line-height: 1.65; }
+    .trips-grid { display: grid; grid-template-columns: minmax(0,1fr) 360px; gap: 24px; }
+    .trip { border: 1px solid var(--line); border-radius: 18px; padding: 17px; margin-top: 14px; }
+    .trip-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .trip h4 { margin: 0; }
+    .trip p { color: var(--muted); }
+    .impact { background: var(--soft); border-radius: 18px; padding: 17px; margin-top: 14px; }
+    .impact strong { font-size: 28px; display: block; margin-top: 4px; }
+    .setup-grid { display: grid; grid-template-columns: 380px minmax(0,1fr); gap: 24px; }
+    .preset {
+      display: block; width: 100%; text-align: left;
+      border: 1px solid var(--line); border-radius: 18px;
+      background: #fff; padding: 16px; margin-top: 12px;
+      cursor: pointer;
+    }
+    .preset.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+    .preset span { color: var(--muted); font-size: 13px; }
+    .preset.active span { color: #cbd5e1; }
+    .workflow {
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      gap: 18px;
+      margin-top: 12px;
+      padding: 24px;
+    }
+    .workflow-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+    .workflow-step { background: var(--soft); border-radius: 18px; padding: 16px; }
+    .workflow-step strong { display: block; margin-top: 10px; }
+    .hidden { display: none !important; }
+    .svg-icon { width: 20px; height: 20px; display: inline-block; vertical-align: -4px; }
+    @media (max-width: 980px) {
+      .hero-grid, .find-grid, .form-grid, .trips-grid, .setup-grid { grid-template-columns: 1fr; }
+      .safety-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .workflow { grid-template-columns: 1fr; }
+      .workflow-grid { grid-template-columns: repeat(2,1fr); }
+      .header-actions { display: none; }
+    }
+    @media (max-width: 640px) {
+      .container { width: min(100% - 22px, 1180px); }
+      .hero { padding: 24px; border-radius: 26px; }
+      .hero-metrics, .field-grid, .safety-grid, .workflow-grid { grid-template-columns: 1fr; }
+      .ride-inner { flex-direction: column; }
+      .matchbox { width: 100%; }
+      .trip-head, .panel-head { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">🚗</div>
+        <div>
+          <h1>Carpooler</h1>
+          <p id="brand-subtitle">Student rides for UTD</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span class="pill" id="domain-pill">🎓 @utdallas.edu</span>
+        <button class="btn">🔔 Alerts</button>
+        <button class="btn primary">✅ Verified Student</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero-grid">
+      <div class="hero">
+        <span class="pill">Built for UTD students, adaptable anywhere</span>
+        <h2>Commute from home to campus with trusted student carpools.</h2>
+        <p>Carpooler helps university students find verified rides, split costs, reduce parking stress, and travel safely between home areas and campus destinations.</p>
+        <div class="hero-actions">
+          <button class="btn light" onclick="showTab('find')">🔍 Find a Ride</button>
+          <button class="btn ghost-dark" onclick="showTab('post')">＋ Post a Ride</button>
+        </div>
+        <div class="hero-metrics">
+          <div class="metric-dark"><strong>96%</strong><span>Top ride match</span></div>
+          <div class="metric-dark"><strong>$3–$5</strong><span>Typical cost share</span></div>
+          <div class="metric-dark"><strong>Verified</strong><span>University email first</span></div>
+        </div>
+      </div>
+
+      <div class="stat-stack">
+        <div class="card stat">
+          <div class="iconbox">🛣️</div>
+          <div><p>Active routes</p><strong>42</strong><small>Across Plano, Frisco, Irving, Dallas, and campus housing</small></div>
+        </div>
+        <div class="card stat">
+          <div class="iconbox">👥</div>
+          <div><p>Students matched</p><strong>1,284</strong><small>Demo metric for product presentation</small></div>
+        </div>
+        <div class="card stat">
+          <div class="iconbox">🌱</div>
+          <div><p>CO₂ avoided</p><strong>8.7k lb</strong><small>Estimated by replacing solo commute trips</small></div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="App sections">
+      <button class="btn tab active" data-tab-button="find" onclick="showTab('find')">🔍 Find Rides</button>
+      <button class="btn tab" data-tab-button="post" onclick="showTab('post')">＋ Post Ride</button>
+      <button class="btn tab" data-tab-button="trips" onclick="showTab('trips')">📅 My Trips</button>
+      <button class="btn tab" data-tab-button="safety" onclick="showTab('safety')">🛡️ Safety</button>
+      <button class="btn tab" data-tab-button="setup" onclick="showTab('setup')">⚙️ University Setup</button>
+    </nav>
+
+    <section class="content">
+      <div id="tab-find" data-tab-panel>
+        <div class="find-grid">
+          <div>
+            <div class="card panel">
+              <div class="panel-head">
+                <div>
+                  <h3>Find a ride</h3>
+                  <p id="find-desc">Match with verified students going to or from UTD.</p>
+                </div>
+                <div class="seg">
+                  <button class="btn small primary" data-direction="All" onclick="setDirection('All')">All</button>
+                  <button class="btn small" data-direction="Home → Campus" onclick="setDirection('Home → Campus')">Home → Campus</button>
+                  <button class="btn small" data-direction="Campus → Home" onclick="setDirection('Campus → Home')">Campus → Home</button>
+                </div>
+              </div>
+              <div class="searchbox">
+                <span>🔍</span>
+                <input id="ride-search" type="search" placeholder="Search pickup, dropoff, driver, or neighborhood" oninput="renderRides()" />
+                <span>⚙️</span>
+              </div>
+            </div>
+            <div class="rides" id="rides"></div>
+          </div>
+
+          <div class="card map">
+            <div class="panel-head">
+              <div>
+                <h3>Live Route Map</h3>
+                <p>Demo map showing home-to-campus and campus-to-home ride flow.</p>
+              </div>
+              <span class="pill" id="campus-map-pill">📍 UTD</span>
+            </div>
+            <div class="map-art">
+              <div class="map-label home"><small>Home Area</small><strong>Plano / Frisco / Irving</strong></div>
+              <div class="map-label dark"><small>Campus Hub</small><strong id="campus-hub">UTD Campus, Richardson, TX</strong></div>
+              <svg style="position:absolute; inset:0; width:100%; height:100%" viewBox="0 0 600 300" fill="none">
+                <path d="M80 85 C180 35, 245 170, 330 130 C430 85, 470 205, 520 230" stroke="#0f172a" stroke-width="4" stroke-dasharray="10 10"></path>
+                <circle cx="80" cy="85" r="9" fill="white" stroke="#0f172a" stroke-width="4"></circle>
+                <circle cx="330" cy="130" r="9" fill="white" stroke="#0f172a" stroke-width="4"></circle>
+                <circle cx="520" cy="230" r="11" fill="#0f172a"></circle>
+              </svg>
+              <div class="car-dot">🚗</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-post" data-tab-panel class="hidden">
+        <div class="form-grid">
+          <div class="card panel">
+            <div class="brand" style="align-items:flex-start">
+              <div class="iconbox">＋</div>
+              <div>
+                <h3>Post a carpool ride</h3>
+                <p>Offer seats as a driver or request a ride as a rider.</p>
+              </div>
+            </div>
+            <div class="field-grid">
+              <label><span>I am a</span><select><option>Driver offering seats</option><option>Rider requesting a seat</option></select></label>
+              <label><span>Direction</span><select><option>Home → Campus</option><option>Campus → Home</option><option>Round trip</option></select></label>
+              <label><span>Pickup area</span><input placeholder="Example: Plano East, Northside, Frisco"></label>
+              <label><span>Dropoff</span><select id="dropoff-select"></select></label>
+              <label><span>Date / frequency</span><input placeholder="Example: Mon, Wed, Fri or One-time"></label>
+              <label><span>Departure time</span><input placeholder="Example: 8:15 AM"></label>
+              <label><span>Available seats</span><input placeholder="Example: 2"></label>
+              <label><span>Cost share</span><input placeholder="Example: $3.50"></label>
+            </div>
+            <label style="display:block; margin-top:16px"><span>Ride notes</span><textarea placeholder="Add preferences: quiet ride, women-friendly, flexible dropoff, music okay, no food, etc."></textarea></label>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px">
+              <button class="btn primary">＋ Publish Ride</button>
+              <button class="btn">Save Draft</button>
+            </div>
+          </div>
+          <div class="card panel dark-card">
+            <h3>Smart posting tips</h3>
+            <div class="tip">✅ <span>Post recurring class commute times to get better matches.</span></div>
+            <div class="tip">✅ <span>Use campus landmarks like JSOM, ECS West, or Student Union.</span></div>
+            <div class="tip">✅ <span>Keep pickup zones broad for privacy and safety.</span></div>
+            <div class="tip">✅ <span>Let riders request seats before exact address sharing.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-trips" data-tab-panel class="hidden">
+        <div class="trips-grid">
+          <div class="card panel">
+            <h3>My trips</h3>
+            <p>Track requests, confirmed rides, messages, and ride history.</p>
+            <div id="trips-list"></div>
+          </div>
+          <div class="card panel">
+            <h3>Your impact</h3>
+            <div class="impact"><span>Monthly savings</span><strong>$68</strong></div>
+            <div class="impact"><span>CO₂ avoided</span><strong>42 lb</strong></div>
+            <div class="impact"><span>Carpool points</span><strong>1,240</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-safety" data-tab-panel class="hidden">
+        <div class="safety-grid" id="safety-grid"></div>
+      </div>
+
+      <div id="tab-setup" data-tab-panel class="hidden">
+        <div class="setup-grid">
+          <div class="card panel">
+            <div class="brand" style="align-items:flex-start">
+              <div class="iconbox">⚙️</div>
+              <div>
+                <h3>Tailor the app</h3>
+                <p>Change university, domain, and campus stops.</p>
+              </div>
+            </div>
+            <div id="preset-list"></div>
+          </div>
+          <div class="card panel">
+            <h3>Custom deployment settings</h3>
+            <p>Use this to launch the same app for another university, company, airport, or event venue.</p>
+            <div class="field-grid">
+              <label><span>Organization name</span><input id="custom-name"></label>
+              <label><span>Short name</span><input id="custom-short"></label>
+              <label><span>Email domain</span><input id="custom-domain"></label>
+              <label><span>Primary destination</span><input id="custom-campus"></label>
+            </div>
+            <div class="impact">
+              <span>Default campus stops</span>
+              <div class="tags" id="custom-stops"></div>
+            </div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px">
+              <button class="btn primary" onclick="applyCustomCampus()">Apply Settings</button>
+              <button class="btn">Export Config</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card workflow">
+        <div>
+          <h3>Core app workflow</h3>
+          <p>Designed for student safety and simple adoption.</p>
+        </div>
+        <div class="workflow-grid">
+          <div class="workflow-step">🎓 <strong>Verify</strong><p>Sign up with university email.</p></div>
+          <div class="workflow-step">🏠 <strong>Set commute</strong><p>Add home zone and campus stop.</p></div>
+          <div class="workflow-step">🚗 <strong>Match</strong><p>Find drivers or riders by route.</p></div>
+          <div class="workflow-step">🏫 <strong>Arrive</strong><p>Check in and rate the ride.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const universityPresets = [
+      {
+        name: "University of Texas at Dallas",
+        shortName: "UTD",
+        emailDomain: "utdallas.edu",
+        primaryCampus: "UTD Campus, Richardson, TX",
+        defaultStops: ["UTD Student Union","JSOM / Naveen Jindal School of Management","McDermott Library","Northside Apartments","UTD Testing Center","ECS West"]
+      },
+      {
+        name: "University of North Texas",
+        shortName: "UNT",
+        emailDomain: "unt.edu",
+        primaryCampus: "UNT Campus, Denton, TX",
+        defaultStops: ["Union Circle","Discovery Park","Willis Library","Lot 20","NTX Blvd"]
+      },
+      {
+        name: "Southern Methodist University",
+        shortName: "SMU",
+        emailDomain: "smu.edu",
+        primaryCampus: "SMU Campus, Dallas, TX",
+        defaultStops: ["Hughes-Trigg Student Center","Fondren Library","Dedman Center","Meadows Museum"]
+      }
+    ];
+
+    const rides = [
+      { id: 1, driver: "Ayesha R.", avatar: "AR", rating: 4.9, verified: true, route: "Plano East → UTD Student Union", pickupArea: "Plano East", destination: "UTD Student Union", direction: "Home → Campus", time: "8:10 AM", date: "Mon, Wed, Fri", seats: 2, price: "$3.50", match: 96, tags: ["Recurring", "Women-friendly", "Quiet ride"], carbonSaved: "4.2 lb CO₂" },
+      { id: 2, driver: "Rahul S.", avatar: "RS", rating: 4.8, verified: true, route: "UTD JSOM → Irving / Las Colinas", pickupArea: "UTD JSOM", destination: "Irving / Las Colinas", direction: "Campus → Home", time: "5:35 PM", date: "Tue, Thu", seats: 3, price: "$4.00", match: 91, tags: ["After class", "A/C", "Flexible dropoff"], carbonSaved: "5.1 lb CO₂" },
+      { id: 3, driver: "Emily T.", avatar: "ET", rating: 5.0, verified: true, route: "Northside Apartments → ECS West", pickupArea: "Northside Apartments", destination: "ECS West", direction: "Home → Campus", time: "9:25 AM", date: "Daily", seats: 1, price: "$1.00", match: 88, tags: ["Short route", "On campus", "Recurring"], carbonSaved: "1.3 lb CO₂" },
+      { id: 4, driver: "Carlos M.", avatar: "CM", rating: 4.7, verified: true, route: "UTD Library → Frisco Square", pickupArea: "McDermott Library", destination: "Frisco Square", direction: "Campus → Home", time: "7:00 PM", date: "Mon, Wed", seats: 2, price: "$5.00", match: 84, tags: ["Evening ride", "Music okay", "Direct route"], carbonSaved: "6.7 lb CO₂" }
+    ];
+
+    const trips = [
+      { title: "Plano East → UTD Student Union", status: "Seat requested", time: "Tomorrow, 8:10 AM", action: "Waiting for driver approval" },
+      { title: "UTD JSOM → Irving / Las Colinas", status: "Confirmed", time: "Thu, 5:35 PM", action: "Pickup QR will unlock 30 minutes before departure" },
+      { title: "Northside Apartments → ECS West", status: "Completed", time: "Yesterday, 9:25 AM", action: "Rate your ride experience" }
+    ];
+
+    const safetyItems = [
+      ["🎓", "University email verification", "Students sign up using a verified university email domain before requesting or posting rides."],
+      ["👤", "Profile trust score", "Ratings, completed rides, verified student status, and optional driver license checks improve trust."],
+      ["🔒", "Privacy-first pickup", "Exact home address is hidden until both parties confirm the ride. Pickup zones are used first."],
+      ["🔔", "Trip check-in alerts", "Students can share ride status with an emergency contact and receive check-in prompts."],
+      ["💬", "In-app messaging", "Students coordinate inside the app without exposing phone numbers too early."],
+      ["💳", "Transparent cost sharing", "The app suggests a fair fuel/parking split and keeps payment records clear."]
+    ];
+
+    let campus = universityPresets[0];
+    let currentDirection = "All";
+
+    function badge(text, cls = "") {
+      return `<span class="pill ${cls}">${text}</span>`;
+    }
+
+    function showTab(tab) {
+      document.querySelectorAll("[data-tab-panel]").forEach(el => el.classList.add("hidden"));
+      document.getElementById(`tab-${tab}`).classList.remove("hidden");
+      document.querySelectorAll("[data-tab-button]").forEach(btn => btn.classList.toggle("active", btn.dataset.tabButton === tab));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function setDirection(direction) {
+      currentDirection = direction;
+      document.querySelectorAll("[data-direction]").forEach(btn => {
+        btn.classList.toggle("primary", btn.dataset.direction === direction);
+      });
+      renderRides();
+    }
+
+    function renderRides() {
+      const q = document.getElementById("ride-search").value.toLowerCase();
+      const filtered = rides.filter(ride => {
+        const text = `${ride.route} ${ride.pickupArea} ${ride.destination} ${ride.driver}`.toLowerCase();
+        return (currentDirection === "All" || ride.direction === currentDirection) && text.includes(q);
+      });
+
+      document.getElementById("rides").innerHTML = filtered.map(ride => `
+        <div class="card ride">
+          <div class="ride-inner">
+            <div class="ride-main">
+              <div class="avatar">${ride.avatar}</div>
+              <div>
+                <div class="ride-title">
+                  <h4>${ride.route}</h4>
+                  ${ride.verified ? badge("🛡️ Verified", "verified") : ""}
+                </div>
+                <div class="meta">
+                  <span>👤 ${ride.driver}</span>
+                  <span>⭐ ${ride.rating}</span>
+                  <span>🕒 ${ride.time}</span>
+                  <span>📅 ${ride.date}</span>
+                  <span>👥 ${ride.seats} seats</span>
+                </div>
+                <div class="tags">${ride.tags.map(t => badge(t)).join("")}</div>
+              </div>
+            </div>
+            <div class="matchbox">
+              <div class="row"><span>Match</span><strong>${ride.match}%</strong></div>
+              <div class="bar"><span style="width:${ride.match}%"></span></div>
+              <div class="row"><span>Cost share</span><strong>${ride.price}</strong></div>
+              <div class="row"><span>🌱 Saved</span><strong>${ride.carbonSaved}</strong></div>
+              <button class="btn primary" style="width:100%; margin-top:8px">Request Seat</button>
+            </div>
+          </div>
+        </div>
+      `).join("") || `<div class="card panel"><h3>No rides found</h3><p>Try another pickup area, destination, or direction.</p></div>`;
+    }
+
+    function renderTrips() {
+      document.getElementById("trips-list").innerHTML = trips.map(trip => `
+        <div class="trip">
+          <div class="trip-head">
+            <div><h4>${trip.title}</h4><p>${trip.time}</p></div>
+            ${badge(trip.status)}
+          </div>
+          <p>${trip.action}</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <button class="btn small primary">💬 Message</button>
+            <button class="btn small">Details</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderSafety() {
+      document.getElementById("safety-grid").innerHTML = safetyItems.map(([icon, title, text]) => `
+        <div class="card safety-card">
+          <div class="iconbox">${icon}</div>
+          <h4>${title}</h4>
+          <p>${text}</p>
+        </div>
+      `).join("");
+    }
+
+    function renderSetup() {
+      document.getElementById("preset-list").innerHTML = universityPresets.map((p, i) => `
+        <button class="preset ${p.shortName === campus.shortName ? "active" : ""}" onclick="selectCampus(${i})">
+          <strong>${p.name}</strong><br><span>Domain: ${p.emailDomain}</span>
+        </button>
+      `).join("");
+      syncCustomInputs();
+    }
+
+    function selectCampus(index) {
+      campus = {...universityPresets[index]};
+      updateCampusUI();
+      renderSetup();
+    }
+
+    function syncCustomInputs() {
+      document.getElementById("custom-name").value = campus.name;
+      document.getElementById("custom-short").value = campus.shortName;
+      document.getElementById("custom-domain").value = campus.emailDomain;
+      document.getElementById("custom-campus").value = campus.primaryCampus;
+      document.getElementById("custom-stops").innerHTML = campus.defaultStops.map(stop => badge(stop)).join("");
+    }
+
+    function applyCustomCampus() {
+      campus = {
+        ...campus,
+        name: document.getElementById("custom-name").value,
+        shortName: document.getElementById("custom-short").value,
+        emailDomain: document.getElementById("custom-domain").value,
+        primaryCampus: document.getElementById("custom-campus").value
+      };
+      updateCampusUI();
+      renderSetup();
+      alert("Settings applied to this prototype.");
+    }
+
+    function updateCampusUI() {
+      document.getElementById("brand-subtitle").textContent = `Student rides for ${campus.shortName}`;
+      document.getElementById("domain-pill").textContent = `🎓 @${campus.emailDomain}`;
+      document.getElementById("find-desc").textContent = `Match with verified students going to or from ${campus.shortName}.`;
+      document.getElementById("campus-map-pill").textContent = `📍 ${campus.shortName}`;
+      document.getElementById("campus-hub").textContent = campus.primaryCampus;
+      const dropoff = document.getElementById("dropoff-select");
+      if (dropoff) dropoff.innerHTML = campus.defaultStops.map(stop => `<option>${stop}</option>`).join("");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      updateCampusUI();
+      renderRides();
+      renderTrips();
+      renderSafety();
+      renderSetup();
+    });
+  </script>
+</body>
+</html>
