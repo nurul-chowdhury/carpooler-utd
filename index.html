@@ -76,6 +76,7 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     }
     .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(15,23,42,.08); }
+    .btn:disabled { cursor: not-allowed; opacity: .55; transform: none; box-shadow: none; }
     .btn.primary { background: var(--dark); color: #fff; border-color: var(--dark); }
     .btn.light { background: #fff; color: var(--dark); border-color: #fff; }
     .btn.ghost-dark { background: transparent; color: #fff; border-color: rgba(255,255,255,.18); }
@@ -131,6 +132,7 @@
     .stat p { margin: 0; color: var(--muted); font-size: 14px; }
     .stat strong { display: block; margin-top: 4px; font-size: 28px; letter-spacing: -0.03em; }
     .stat small { display: block; margin-top: 3px; color: var(--muted); }
+    .demo-label { display: inline-flex; margin-top: 7px; padding: 3px 7px; border-radius: 999px; background: #e2e8f0; color: #475569; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
     .tabs { display: flex; gap: 10px; overflow-x: auto; padding: 28px 0 12px; }
     .tab { white-space: nowrap; }
     .tab.active { background: var(--dark); color: #fff; border-color: var(--dark); }
@@ -210,6 +212,10 @@
       color: var(--ink);
     }
     input:focus, select:focus, textarea:focus { border-color: #0f172a; box-shadow: 0 0 0 3px rgba(15,23,42,.12); }
+    input.invalid { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+    .field-hint { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .field-error { display: none; margin-top: 6px; color: #b91c1c; font-size: 12px; font-weight: 700; }
+    .field-error.visible { display: block; }
     textarea { min-height: 112px; resize: vertical; }
     .dark-card { background: var(--dark); color: #fff; }
     .dark-card p { color: #cbd5e1; }
@@ -225,6 +231,9 @@
     .trip p { color: var(--muted); }
     .impact { background: var(--soft); border-radius: 18px; padding: 17px; margin-top: 14px; }
     .impact strong { font-size: 28px; display: block; margin-top: 4px; }
+    .impact-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .tooltip-trigger { border: 0; background: transparent; color: #475569; padding: 2px; font-size: 11px; font-weight: 750; text-decoration: underline dotted; cursor: help; }
+    .points-earned { display: inline-flex; margin: 0 0 12px; padding: 5px 9px; border-radius: 999px; color: var(--green); background: var(--green-bg); font-size: 12px; font-weight: 800; }
     .setup-grid { display: grid; grid-template-columns: 380px minmax(0,1fr); gap: 24px; }
     .preset {
       display: block; width: 100%; text-align: left;
@@ -278,6 +287,23 @@
     }
     .empty-state { padding: 26px; text-align: center; border: 1px dashed var(--line); border-radius: 18px; margin-top: 14px; }
     .empty-state p { margin-bottom: 14px; }
+    .check-panel { margin-top: 18px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); }
+    .check-panel h4 { margin: 0; }
+    .check-panel > p { margin: 5px 0 14px; color: var(--muted); font-size: 13px; }
+    .check-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .check-option { display: flex; align-items: flex-start; gap: 9px; padding: 11px; border-radius: 13px; background: #fff; border: 1px solid var(--line); color: #334155; font-size: 13px; font-weight: 650; }
+    .check-option input { width: auto; margin: 2px 0 0; }
+    .check-option span { margin: 0; font-size: 13px; }
+    .schedule-field { grid-column: 1 / -1; }
+    .day-grid { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 7px; }
+    .day-option { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 9px 5px; border: 1px solid var(--line); border-radius: 11px; background: #fff; font-size: 12px; font-weight: 750; }
+    .day-option input { width: auto; margin: 0; }
+    .priority-option { margin-top: 10px; background: var(--green-bg); border-color: var(--green-line); }
+    .accessible { color: #075985; background: #f0f9ff; border-color: #bae6fd; }
+    .rating { display: flex; align-items: center; gap: 4px; margin: 13px 0; flex-wrap: wrap; }
+    .rating-label { margin-right: 5px; color: #334155; font-size: 13px; font-weight: 750; }
+    .star { border: 0; background: transparent; padding: 3px; color: #cbd5e1; font-size: 23px; cursor: pointer; line-height: 1; }
+    .star.selected { color: #f59e0b; }
     .hidden { display: none !important; }
     .svg-icon { width: 20px; height: 20px; display: inline-block; vertical-align: -4px; }
     @media (max-width: 980px) {
@@ -297,6 +323,8 @@
       .demo-bar { align-items: stretch; flex-direction: column; }
       .demo-actions select { width: 100%; }
       .message-compose { flex-direction: column; }
+      .check-grid { grid-template-columns: 1fr; }
+      .day-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
     }
   </style>
 </head>
@@ -312,8 +340,8 @@
       </div>
       <div class="header-actions">
         <span class="pill" id="domain-pill">🎓 @utdallas.edu</span>
-        <button class="btn">🔔 Alerts</button>
-        <button class="btn primary">✅ Verified Student</button>
+        <button class="btn" onclick="comingSoon('Alerts')">🔔 Alerts</button>
+        <button class="btn primary" onclick="comingSoon('Student verification')">✅ Verified Student</button>
       </div>
     </div>
   </header>
@@ -351,7 +379,7 @@
       <div class="stat-stack">
         <div class="card stat">
           <div class="iconbox">🛣️</div>
-          <div><p>Active routes</p><strong>42</strong><small>Across Plano, Frisco, Irving, Dallas, and campus housing</small></div>
+          <div><p>Active routes</p><strong>42</strong><span class="demo-label">Demo data</span><small>Across Plano, Frisco, Irving, Dallas, and campus housing</small></div>
         </div>
         <div class="card stat">
           <div class="iconbox">👥</div>
@@ -359,7 +387,7 @@
         </div>
         <div class="card stat">
           <div class="iconbox">🌱</div>
-          <div><p>CO₂ avoided</p><strong>8.7k lb</strong><small>Estimated by replacing solo commute trips</small></div>
+          <div><p>CO₂ avoided</p><strong>8.7k lb</strong><span class="demo-label">Demo data</span><small>Estimated by replacing solo commute trips</small></div>
         </div>
       </div>
     </section>
@@ -386,12 +414,13 @@
                   <button class="btn small primary" data-direction="All" onclick="setDirection('All')">All</button>
                   <button class="btn small" data-direction="Home → Campus" onclick="setDirection('Home → Campus')">Home → Campus</button>
                   <button class="btn small" data-direction="Campus → Home" onclick="setDirection('Campus → Home')">Campus → Home</button>
+                  <button class="btn small" id="accessible-filter" onclick="toggleAccessibleFilter()">Accessible rides</button>
                 </div>
               </div>
               <div class="searchbox">
                 <span>🔍</span>
                 <input id="ride-search" type="search" placeholder="Search pickup, dropoff, driver, or neighborhood" oninput="renderRides()" />
-                <span>⚙️</span>
+                <button class="btn small" onclick="comingSoon('Advanced search filters')" aria-label="Search settings">⚙️</button>
               </div>
             </div>
             <div class="rides" id="rides"></div>
@@ -433,14 +462,39 @@
             <div class="field-grid">
               <label><span>I am a</span><select id="post-kind"><option>Driver offering seats</option></select></label>
               <label><span>Direction</span><select id="post-direction"><option>Home → Campus</option><option>Campus → Home</option></select></label>
-              <label><span>Pickup area</span><input id="post-pickup" placeholder="Example: Plano East, Northside, Frisco" required></label>
+              <label><span>Pickup area *</span><input id="post-pickup" placeholder="Example: Plano East, Northside, Frisco" required oninput="clearFieldError('post-pickup')"><small class="field-hint">Use a general area, not your exact address.</small><small class="field-error" id="post-pickup-error">Enter a pickup area.</small></label>
               <label><span>Dropoff</span><select id="dropoff-select"></select></label>
-              <label><span>Date / frequency</span><input id="post-date" placeholder="Example: Mon, Wed, Fri or One-time" required></label>
-              <label><span>Departure time</span><input id="post-time" placeholder="Example: 8:15 AM" required></label>
+              <label><span>Trip type *</span><select id="post-trip-type" onchange="toggleTripType()"><option value="one-time">One-time</option><option value="recurring">Recurring</option></select></label>
+              <label><span>Departure time *</span><input id="post-time" type="time" required oninput="clearFieldError('post-time')"><small class="field-error" id="post-time-error">Enter a departure time.</small></label>
+              <label id="post-trip-date-wrap" class="schedule-field"><span>Trip date *</span><input id="post-trip-date" type="date" onchange="clearScheduleError()"><small class="field-error" id="post-trip-date-error">Choose a trip date.</small></label>
+              <div id="post-recurring-wrap" class="schedule-field hidden">
+                <span style="display:block; color:#334155; font-size:14px; font-weight:700; margin-bottom:7px">Recurring days *</span>
+                <div class="day-grid">
+                  <label class="day-option"><input type="checkbox" name="recurring-day" value="Mon" onchange="clearScheduleError()">Mon</label>
+                  <label class="day-option"><input type="checkbox" name="recurring-day" value="Tue" onchange="clearScheduleError()">Tue</label>
+                  <label class="day-option"><input type="checkbox" name="recurring-day" value="Wed" onchange="clearScheduleError()">Wed</label>
+                  <label class="day-option"><input type="checkbox" name="recurring-day" value="Thu" onchange="clearScheduleError()">Thu</label>
+                  <label class="day-option"><input type="checkbox" name="recurring-day" value="Fri" onchange="clearScheduleError()">Fri</label>
+                  <label class="day-option"><input type="checkbox" name="recurring-day" value="Sat" onchange="clearScheduleError()">Sat</label>
+                  <label class="day-option"><input type="checkbox" name="recurring-day" value="Sun" onchange="clearScheduleError()">Sun</label>
+                </div>
+                <small class="field-error" id="post-recurring-error">Choose at least one recurring day.</small>
+              </div>
               <label><span>Available seats</span><input id="post-seats" type="number" min="1" max="6" value="2" required></label>
               <label><span>Cost share</span><input id="post-price" placeholder="Example: $3.50" value="$3.50" required></label>
             </div>
             <label style="display:block; margin-top:16px"><span>Ride notes</span><textarea id="post-notes" placeholder="Add preferences: quiet ride, women-friendly, flexible dropoff, music okay, no food, etc."></textarea></label>
+            <div class="check-panel">
+              <h4>Accessibility features <span style="color:var(--muted); font-weight:500">(optional)</span></h4>
+              <p>Select any features available for this ride.</p>
+              <div class="check-grid">
+                <label class="check-option"><input type="checkbox" name="accessibility" value="Front seat available"><span>Front seat available</span></label>
+                <label class="check-option"><input type="checkbox" name="accessibility" value="Space for wheelchair or mobility aid"><span>Space for wheelchair/mobility aid</span></label>
+                <label class="check-option"><input type="checkbox" name="accessibility" value="Step-free pickup"><span>Step-free pickup</span></label>
+                <label class="check-option"><input type="checkbox" name="accessibility" value="Service animal welcome"><span>Service animal welcome</span></label>
+              </div>
+              <label class="check-option priority-option"><input id="post-priority-seat" type="checkbox"><span>Hold 1 seat for accessibility-priority riders until 24 hours before departure</span></label>
+            </div>
             <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px">
               <button class="btn primary" onclick="publishRide()">＋ Publish Ride</button>
               <button class="btn" onclick="saveDraft()">Save Draft</button>
@@ -465,9 +519,13 @@
           </div>
           <div class="card panel">
             <h3>Your impact</h3>
-            <div class="impact"><span>Monthly savings</span><strong>$68</strong></div>
-            <div class="impact"><span>CO₂ avoided</span><strong>42 lb</strong></div>
-            <div class="impact"><span>Carpool points</span><strong>1,240</strong></div>
+            <div class="impact"><span>Monthly savings</span><strong id="impact-savings">$68.00</strong></div>
+            <div class="impact"><span>CO₂ avoided</span><strong id="impact-carbon">42.0 lb</strong></div>
+            <div class="impact">
+              <div class="impact-label"><span>Carpool points</span><button class="tooltip-trigger" title="Riders earn 10 points per completed trip. Drivers earn 15 points. Either role earns a 5-point bonus for a ride with accessibility features or a priority seat hold." aria-label="How carpool points work">How points work</button></div>
+              <strong id="impact-points">1,240</strong>
+              <small id="impact-points-earned" class="field-hint"></small>
+            </div>
           </div>
         </div>
       </div>
@@ -503,7 +561,7 @@
             </div>
             <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px">
               <button class="btn primary" onclick="applyCustomCampus()">Apply Settings</button>
-              <button class="btn">Export Config</button>
+              <button class="btn" onclick="comingSoon('Configuration export')">Export Config</button>
             </div>
           </div>
         </div>
@@ -537,6 +595,27 @@
       </div>
     </div>
   </div>
+  <div id="cancel-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="cancel-title">
+    <div class="card modal">
+      <div class="modal-head">
+        <div><h3 id="cancel-title">Cancel this trip?</h3><p>The other party will see your reason.</p></div>
+        <button class="btn small" onclick="closeCancelModal()" aria-label="Close cancellation dialog">Close</button>
+      </div>
+      <label><span>Reason</span>
+        <select id="cancel-reason" onchange="toggleOtherReason()">
+          <option>No-show</option>
+          <option>Destination changed</option>
+          <option>Running late</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label id="cancel-other-wrap" class="hidden" style="display:block; margin-top:14px"><span>Other reason</span><input id="cancel-other" placeholder="Briefly explain" /></label>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px">
+        <button class="btn" onclick="closeCancelModal()">Keep trip</button>
+        <button class="btn primary" onclick="confirmCancellation()">Cancel trip</button>
+      </div>
+    </div>
+  </div>
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
   <script>
@@ -565,10 +644,10 @@
     ];
 
     const defaultRides = [
-      { id: 1, driver: "Ayesha R.", avatar: "AR", rating: 4.9, verified: true, isDemoDriver: true, route: "Plano East → UTD Student Union", pickupArea: "Plano East", destination: "UTD Student Union", direction: "Home → Campus", time: "8:10 AM", date: "Mon, Wed, Fri", seats: 2, price: "$3.50", match: 96, tags: ["Recurring", "Women-friendly", "Quiet ride"], carbonSaved: "4.2 lb CO₂" },
-      { id: 2, driver: "Rahul S.", avatar: "RS", rating: 4.8, verified: true, route: "UTD JSOM → Irving / Las Colinas", pickupArea: "UTD JSOM", destination: "Irving / Las Colinas", direction: "Campus → Home", time: "5:35 PM", date: "Tue, Thu", seats: 3, price: "$4.00", match: 91, tags: ["After class", "A/C", "Flexible dropoff"], carbonSaved: "5.1 lb CO₂" },
-      { id: 3, driver: "Emily T.", avatar: "ET", rating: 5.0, verified: true, route: "Northside Apartments → ECS West", pickupArea: "Northside Apartments", destination: "ECS West", direction: "Home → Campus", time: "9:25 AM", date: "Daily", seats: 1, price: "$1.00", match: 88, tags: ["Short route", "On campus", "Recurring"], carbonSaved: "1.3 lb CO₂" },
-      { id: 4, driver: "Carlos M.", avatar: "CM", rating: 4.7, verified: true, route: "UTD Library → Frisco Square", pickupArea: "McDermott Library", destination: "Frisco Square", direction: "Campus → Home", time: "7:00 PM", date: "Mon, Wed", seats: 2, price: "$5.00", match: 84, tags: ["Evening ride", "Music okay", "Direct route"], carbonSaved: "6.7 lb CO₂" }
+      { id: 1, driver: "Ayesha R.", avatar: "AR", rating: 4.9, verified: true, isDemoDriver: true, route: "Plano East → UTD Student Union", pickupArea: "Plano East", destination: "UTD Student Union", direction: "Home → Campus", time: "8:10 AM", date: "Mon, Wed, Fri", tripType: "recurring", recurringDays: ["Mon","Wed","Fri"], seats: 2, price: "$3.50", match: 96, tags: ["Recurring", "Women-friendly", "Quiet ride"], carbonSaved: "4.2 lb CO₂", accessibilityFeatures: ["Front seat available", "Service animal welcome"], holdAccessibility: true },
+      { id: 2, driver: "Rahul S.", avatar: "RS", rating: 4.8, verified: true, route: "UTD JSOM → Irving / Las Colinas", pickupArea: "UTD JSOM", destination: "Irving / Las Colinas", direction: "Campus → Home", time: "5:35 PM", date: "Tue, Thu", tripType: "recurring", recurringDays: ["Tue","Thu"], seats: 3, price: "$4.00", match: 91, tags: ["After class", "A/C", "Flexible dropoff"], carbonSaved: "5.1 lb CO₂" },
+      { id: 3, driver: "Emily T.", avatar: "ET", rating: 5.0, verified: true, route: "Northside Apartments → ECS West", pickupArea: "Northside Apartments", destination: "ECS West", direction: "Home → Campus", time: "9:25 AM", date: "Daily", tripType: "recurring", recurringDays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], seats: 1, price: "$1.00", match: 88, tags: ["Short route", "On campus", "Recurring"], carbonSaved: "1.3 lb CO₂" },
+      { id: 4, driver: "Carlos M.", avatar: "CM", rating: 4.7, verified: true, route: "UTD Library → Frisco Square", pickupArea: "McDermott Library", destination: "Frisco Square", direction: "Campus → Home", time: "7:00 PM", date: "Mon, Wed", tripType: "recurring", recurringDays: ["Mon","Wed"], seats: 2, price: "$5.00", match: 84, tags: ["Evening ride", "Music okay", "Direct route"], carbonSaved: "6.7 lb CO₂" }
     ];
 
     const safetyItems = [
@@ -582,7 +661,9 @@
 
     let campus = universityPresets[0];
     let currentDirection = "All";
+    let accessibleOnly = false;
     let activeRequestId = null;
+    let cancellingRequestId = null;
     const storageKey = "carpooler-demo-state-v1";
     let demoState = loadDemoState();
 
@@ -593,7 +674,25 @@
     function loadDemoState() {
       try {
         const stored = JSON.parse(localStorage.getItem(storageKey));
-        return stored && Array.isArray(stored.rides) && Array.isArray(stored.requests) ? stored : initialDemoState();
+        if (!stored || !Array.isArray(stored.rides) || !Array.isArray(stored.requests)) return initialDemoState();
+        stored.rides = stored.rides.map(ride => {
+          const migrated = ride.driver === "You (Driver)" ? {...ride, driver: "Nurul C.", avatar: "NC", newDriver: true} : ride;
+          const defaultAccessibility = migrated.id === 1 ? ["Front seat available", "Service animal welcome"] : [];
+          const schedule = migrateSchedule(migrated);
+          const tags = [...(migrated.tags || [])];
+          if (schedule.tripType === "recurring" && !tags.includes("Recurring")) tags.unshift("Recurring");
+          return {
+            ...migrated,
+            tags,
+            time: formatRideTime(migrated.time),
+            newDriver: migrated.newDriver ?? migrated.driver === "Nurul C.",
+            accessibilityFeatures: migrated.accessibilityFeatures || defaultAccessibility,
+            holdAccessibility: migrated.holdAccessibility ?? migrated.id === 1,
+            ...schedule
+          };
+        });
+        stored.requests = stored.requests.map(request => ({...request, ratings: request.ratings || {}}));
+        return stored;
       } catch {
         return initialDemoState();
       }
@@ -601,6 +700,17 @@
 
     function saveDemoState() {
       localStorage.setItem(storageKey, JSON.stringify(demoState));
+    }
+
+    function migrateSchedule(ride) {
+      if (ride.tripType === "one-time" || ride.tripType === "recurring") {
+        return { tripType: ride.tripType, tripDate: ride.tripDate || "", recurringDays: ride.recurringDays || [] };
+      }
+      const dayOrder = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+      const recurringDays = ride.date === "Daily" ? dayOrder : dayOrder.filter(day => String(ride.date || "").includes(day));
+      return recurringDays.length
+        ? { tripType: "recurring", tripDate: "", recurringDays }
+        : { tripType: "one-time", tripDate: "", recurringDays: [] };
     }
 
     function statusClass(status) {
@@ -613,6 +723,10 @@
       toast.classList.remove("hidden");
       clearTimeout(notify.timer);
       notify.timer = setTimeout(() => toast.classList.add("hidden"), 2600);
+    }
+
+    function comingSoon(feature) {
+      notify(`${feature} is coming soon in the full version.`);
     }
 
     function badge(text, cls = "") {
@@ -634,14 +748,113 @@
       renderRides();
     }
 
+    function toggleAccessibleFilter() {
+      accessibleOnly = !accessibleOnly;
+      document.getElementById("accessible-filter").classList.toggle("primary", accessibleOnly);
+      renderRides();
+    }
+
+    function formatTripDate(dateValue) {
+      if (!dateValue) return "";
+      const date = new Date(`${dateValue}T00:00:00`);
+      return Number.isNaN(date.getTime()) ? dateValue : date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+
+    function rideScheduleLabel(ride) {
+      if (ride.tripType === "one-time") {
+        const date = formatTripDate(ride.tripDate);
+        return date ? `One-time · ${date}` : (ride.date || "One-time");
+      }
+      return ride.recurringDays?.length ? ride.recurringDays.join(", ") : (ride.date || "Recurring");
+    }
+
+    function timeParts(timeValue) {
+      const match = String(timeValue || "").trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+      if (!match) return null;
+      let hour = Number(match[1]);
+      const minute = Number(match[2] || 0);
+      const period = match[3]?.toUpperCase();
+      if (period === "PM" && hour < 12) hour += 12;
+      if (period === "AM" && hour === 12) hour = 0;
+      return { hour, minute };
+    }
+
+    function formatRideTime(timeValue) {
+      const parts = timeParts(timeValue);
+      if (!parts) return timeValue || "";
+      const period = parts.hour >= 12 ? "PM" : "AM";
+      const hour = parts.hour % 12 || 12;
+      return `${hour}:${String(parts.minute).padStart(2, "0")} ${period}`;
+    }
+
+    function timeInputValue(timeValue) {
+      const parts = timeParts(timeValue);
+      return parts ? `${String(parts.hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}` : "";
+    }
+
+    function nextDeparture(ride) {
+      const parts = timeParts(ride.time);
+      if (!parts) return null;
+      if (ride.tripType === "one-time" && ride.tripDate) {
+        const departure = new Date(`${ride.tripDate}T00:00:00`);
+        departure.setHours(parts.hour, parts.minute, 0, 0);
+        return departure;
+      }
+      const days = ride.recurringDays || [];
+      if (!days.length) return null;
+      const dayIndex = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+      const now = new Date();
+      for (let offset = 0; offset <= 7; offset += 1) {
+        const candidate = new Date(now);
+        candidate.setDate(now.getDate() + offset);
+        candidate.setHours(parts.hour, parts.minute, 0, 0);
+        const matches = days.some(day => dayIndex[day] === candidate.getDay());
+        if (matches && candidate > now) return candidate;
+      }
+      return null;
+    }
+
+    function priorityHoldExpiry(ride) {
+      const departure = nextDeparture(ride);
+      return departure ? new Date(departure.getTime() - 24 * 60 * 60 * 1000) : null;
+    }
+
+    function isPriorityHoldActive(ride) {
+      if (!ride.holdAccessibility || ride.seats < 1) return false;
+      const expiry = priorityHoldExpiry(ride);
+      return expiry ? new Date() < expiry : true;
+    }
+
+    function regularSeatsAvailable(ride) {
+      return Math.max(0, ride.seats - (isPriorityHoldActive(ride) ? 1 : 0));
+    }
+
+    function seatAvailabilityLabel(ride) {
+      if (ride.seats < 1) return "Full";
+      const seats = `${ride.seats} ${ride.seats === 1 ? "seat" : "seats"}`;
+      return isPriorityHoldActive(ride) ? `${seats} (1 held for accessibility)` : seats;
+    }
+
+    function priorityHoldLabel(ride) {
+      if (!ride.holdAccessibility || ride.seats < 1) return "";
+      const expiry = priorityHoldExpiry(ride);
+      if (expiry && new Date() >= expiry) return "Priority hold released.";
+      if (!expiry) return "Priority seat held until 24 hours before departure.";
+      return `Priority seat held until ${expiry.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.`;
+    }
+
     function renderRides() {
       const q = document.getElementById("ride-search").value.toLowerCase();
       const filtered = demoState.rides.filter(ride => {
         const text = `${ride.route} ${ride.pickupArea} ${ride.destination} ${ride.driver}`.toLowerCase();
-        return (currentDirection === "All" || ride.direction === currentDirection) && text.includes(q);
+        const matchesAccessibility = !accessibleOnly || (ride.accessibilityFeatures?.length || ride.holdAccessibility);
+        return (currentDirection === "All" || ride.direction === currentDirection) && matchesAccessibility && text.includes(q);
       });
 
-      document.getElementById("rides").innerHTML = filtered.map(ride => `
+      document.getElementById("rides").innerHTML = filtered.map(ride => {
+        const isOwnRide = demoState.role === "driver" && ride.driver === "Nurul C.";
+        const isAccessible = Boolean(ride.accessibilityFeatures?.length || ride.holdAccessibility);
+        return `
         <div class="card ride">
           <div class="ride-inner">
             <div class="ride-main">
@@ -650,27 +863,30 @@
                 <div class="ride-title">
                   <h4>${ride.route}</h4>
                   ${ride.verified ? badge("🛡️ Verified", "verified") : ""}
+                  ${isAccessible ? badge("Accessible", "accessible") : ""}
                 </div>
                 <div class="meta">
                   <span>👤 ${ride.driver}</span>
-                  <span>⭐ ${ride.rating}</span>
-                  <span>🕒 ${ride.time}</span>
-                  <span>📅 ${ride.date}</span>
-                  <span>👥 ${ride.seats} seats</span>
+                  <span>${ride.newDriver ? "New driver" : `⭐ ${ride.rating}`}</span>
+                  <span>🕒 ${formatRideTime(ride.time)}</span>
+                  <span>📅 ${rideScheduleLabel(ride)}</span>
+                  <span>👥 ${seatAvailabilityLabel(ride)}</span>
                 </div>
-                <div class="tags">${ride.tags.map(t => badge(t)).join("")}</div>
+                <div class="tags">${[...ride.tags, ...(ride.accessibilityFeatures || [])].map(t => badge(t)).join("")}</div>
+                ${priorityHoldLabel(ride) ? `<small class="field-hint">${priorityHoldLabel(ride)}</small>` : ""}
               </div>
             </div>
             <div class="matchbox">
-              <div class="row"><span>Match</span><strong>${ride.match}%</strong></div>
-              <div class="bar"><span style="width:${ride.match}%"></span></div>
+              ${isOwnRide ? `<div class="row"><span>Listing</span><strong>Your ride</strong></div>` : `
+                <div class="row"><span>Match</span><strong>${ride.match}%</strong></div>
+                <div class="bar"><span style="width:${ride.match}%"></span></div>`}
               <div class="row"><span>Cost share</span><strong>${ride.price}</strong></div>
               <div class="row"><span>🌱 Saved</span><strong>${ride.carbonSaved}</strong></div>
-              ${rideRequestButton(ride)}
+              ${isOwnRide ? "" : rideRequestButton(ride)}
             </div>
           </div>
         </div>
-      `).join("") || `<div class="card panel"><h3>No rides found</h3><p>Try another pickup area, destination, or direction.</p></div>`;
+      `}).join("") || `<div class="card panel"><h3>No rides found</h3><p>Try another pickup area, destination, direction, or accessibility filter.</p></div>`;
     }
 
     function rideRequestButton(ride) {
@@ -681,17 +897,18 @@
       if (request) {
         return `<button class="btn" style="width:100%; margin-top:8px" onclick="showTab('trips')">${request.status} · View trip</button>`;
       }
-      if (ride.seats < 1) {
-        return `<button class="btn" style="width:100%; margin-top:8px" disabled>Ride full</button>`;
+      if (regularSeatsAvailable(ride) < 1) {
+        const label = ride.seats < 1 ? "Full" : "Priority seat held";
+        return `<button class="btn" style="width:100%; margin-top:8px" disabled>${label}</button>`;
       }
       return `<button class="btn primary" style="width:100%; margin-top:8px" onclick="requestSeat(${ride.id})">Request Seat</button>`;
     }
 
     function requestSeat(rideId) {
       const ride = demoState.rides.find(item => item.id === rideId);
-      if (!ride || ride.seats < 1) return notify("This ride is no longer available.");
+      if (!ride || regularSeatsAvailable(ride) < 1) return notify("No regular seats are available while the accessibility-priority seat is held.");
       const id = Date.now();
-      demoState.requests.push({ id, rideId, rider: "Jordan Lee", status: "Pending", seatCounted: false, createdAt: new Date().toISOString() });
+      demoState.requests.push({ id, rideId, rider: "Jordan Lee", status: "Pending", seatCounted: false, ratings: {}, createdAt: new Date().toISOString() });
       demoState.messages[id] = [
         { sender: "rider", name: "Jordan", text: `Hi ${ride.driver.split(" ")[0]}, I would like to join this ride.` }
       ];
@@ -704,6 +921,7 @@
 
     function renderTrips() {
       const requests = demoState.requests;
+      renderImpact();
       if (!requests.length) {
         document.getElementById("trips-list").innerHTML = `
           <div class="empty-state">
@@ -716,37 +934,96 @@
       document.getElementById("trips-list").innerHTML = requests.slice().reverse().map(request => {
         const ride = demoState.rides.find(item => item.id === request.rideId);
         if (!ride) return "";
-        const driverActions = request.status === "Pending" ? `
+        const pendingActions = demoState.role === "driver" && request.status === "Pending" ? `
           <button class="btn small primary" onclick="updateRequest(${request.id}, 'Accepted')">Accept</button>
-          <button class="btn small" onclick="updateRequest(${request.id}, 'Declined')">Decline</button>` : "";
-        const riderActions = request.status === "Pending" ? `<button class="btn small" onclick="updateRequest(${request.id}, 'Cancelled')">Cancel request</button>` :
-          request.status === "Accepted" ? `
-            <button class="btn small" onclick="updateRequest(${request.id}, 'Cancelled')">Cancel</button>
-            <button class="btn small primary" onclick="updateRequest(${request.id}, 'Completed')">Mark complete</button>` : "";
+          <button class="btn small" onclick="updateRequest(${request.id}, 'Declined')">Decline</button>` :
+          demoState.role === "rider" && request.status === "Pending" ? `<button class="btn small" onclick="updateRequest(${request.id}, 'Cancelled')">Cancel request</button>` : "";
+        const acceptedActions = request.status === "Accepted" ? `
+          <button class="btn small" onclick="openCancelModal(${request.id})">Cancel trip</button>
+          <button class="btn small primary" onclick="updateRequest(${request.id}, 'Completed')">Mark complete</button>` : "";
         return `
         <div class="trip">
           <div class="trip-head">
-            <div><h4>${ride.route}</h4><p>${ride.date}, ${ride.time} · ${demoState.role === "driver" ? `Requested by ${request.rider}` : `Driver: ${ride.driver}`}</p></div>
+            <div><h4>${ride.route}</h4><p>${rideScheduleLabel(ride)}, ${formatRideTime(ride.time)} · ${tripPartyLabel(request, ride)}</p></div>
             ${badge(request.status, statusClass(request.status))}
           </div>
-          <p>${tripStatusCopy(request.status, demoState.role)}</p>
+          <p>${tripStatusCopy(request, ride, demoState.role)}</p>
+          ${request.status === "Completed" ? `<span class="points-earned">+${pointsForRide(ride, demoState.role)} points</span>` : ""}
+          ${request.status === "Completed" ? renderRating(request) : ""}
           <div style="display:flex; gap:8px; flex-wrap:wrap">
-            ${driverActions}${riderActions}
+            ${pendingActions}${acceptedActions}
             <button class="btn small" onclick="openMessages(${request.id})">Message</button>
+            <button class="btn small" onclick="comingSoon('Trip details')">Details</button>
           </div>
         </div>
       `}).join("");
     }
 
-    function tripStatusCopy(status, role) {
+    function tripPartyLabel(request, ride) {
+      return demoState.role === "rider" ? `Driver: ${ride.driver}` : `Requested by ${request.rider}`;
+    }
+
+    function tripStatusCopy(request, ride, role) {
+      const status = request.status;
+      if (status === "Cancelled" && request.cancelReason) {
+        return request.cancelledBy === role
+          ? `You cancelled: ${request.cancelReason}`
+          : `${request.cancelledByName} cancelled: ${request.cancelReason}`;
+      }
+      if (status === "Completed" && request.completedBy) {
+        const completedByName = request.completedBy === "driver" ? ride.driver : request.rider;
+        return request.completedBy === role
+          ? `You marked this trip complete. Thanks for ${role === "driver" ? "driving" : "carpooling"}.`
+          : `${completedByName} marked this trip complete. You can now rate the ride.`;
+      }
       const copy = {
         Pending: role === "driver" ? "Review the rider's request and accept or decline it." : "Waiting for the driver to review your request.",
-        Accepted: role === "driver" ? "Seat confirmed. Coordinate the pickup in messages." : "Your seat is confirmed. Coordinate the pickup with your driver.",
+        Accepted: role === "driver" ? "You accepted this rider. Coordinate the pickup in messages." : "The driver accepted your request. Coordinate the pickup in messages.",
         Declined: "This request was declined.",
         Cancelled: "This trip request was cancelled.",
-        Completed: "Trip completed. Thanks for carpooling."
+        Completed: role === "driver" ? "Trip completed. Thanks for driving." : "Trip completed. Thanks for carpooling."
       };
       return copy[status] || "";
+    }
+
+    function renderRating(request) {
+      const selected = request.ratings?.[demoState.role] || 0;
+      return `<div class="rating" aria-label="Rate this ride">
+        <span class="rating-label">${selected ? `Your rating: ${selected}/5` : "Rate this ride"}</span>
+        ${[1,2,3,4,5].map(value => `<button class="star ${value <= selected ? "selected" : ""}" onclick="rateTrip(${request.id}, ${value})" aria-label="Rate ${value} out of 5">★</button>`).join("")}
+      </div>`;
+    }
+
+    function rateTrip(requestId, value) {
+      const request = demoState.requests.find(item => item.id === requestId);
+      if (!request || request.status !== "Completed") return;
+      request.ratings = request.ratings || {};
+      request.ratings[demoState.role] = value;
+      saveDemoState();
+      renderTrips();
+      notify(`Thanks for rating this ride ${value} out of 5.`);
+    }
+
+    function renderImpact() {
+      const completed = demoState.requests.filter(request => request.status === "Completed");
+      const totals = completed.reduce((sum, request) => {
+        const ride = demoState.rides.find(item => item.id === request.rideId);
+        if (!ride) return sum;
+        sum.savings += parseFloat(String(ride.price).replace(/[^0-9.]/g, "")) || 0;
+        sum.carbon += parseFloat(String(ride.carbonSaved).replace(/[^0-9.]/g, "")) || 0;
+        sum.points += pointsForRide(ride, demoState.role);
+        return sum;
+      }, { savings: 68, carbon: 42, points: 0 });
+      document.getElementById("impact-savings").textContent = `$${totals.savings.toFixed(2)}`;
+      document.getElementById("impact-carbon").textContent = `${totals.carbon.toFixed(1)} lb`;
+      document.getElementById("impact-points").textContent = (1240 + totals.points).toLocaleString("en-US");
+      document.getElementById("impact-points-earned").textContent = totals.points ? `+${totals.points} points from completed trips` : "Complete a trip to earn points";
+    }
+
+    function pointsForRide(ride, role) {
+      const base = role === "driver" ? 15 : 10;
+      const accessibilityBonus = ride.accessibilityFeatures?.length || ride.holdAccessibility ? 5 : 0;
+      return base + accessibilityBonus;
     }
 
     function updateRequest(requestId, status) {
@@ -761,11 +1038,48 @@
         ride.seats += 1;
         request.seatCounted = false;
       }
+      if (status === "Completed") request.completedBy = demoState.role;
       request.status = status;
       saveDemoState();
       renderRides();
       renderTrips();
       notify(status === "Accepted" ? "Seat confirmed. Switch to Rider to see the update." : `Request ${status.toLowerCase()}.`);
+    }
+
+    function openCancelModal(requestId) {
+      cancellingRequestId = requestId;
+      document.getElementById("cancel-reason").value = "No-show";
+      document.getElementById("cancel-other").value = "";
+      toggleOtherReason();
+      document.getElementById("cancel-modal").classList.remove("hidden");
+    }
+
+    function closeCancelModal() {
+      document.getElementById("cancel-modal").classList.add("hidden");
+      cancellingRequestId = null;
+    }
+
+    function toggleOtherReason() {
+      const isOther = document.getElementById("cancel-reason").value === "Other";
+      document.getElementById("cancel-other-wrap").classList.toggle("hidden", !isOther);
+    }
+
+    function confirmCancellation() {
+      const request = demoState.requests.find(item => item.id === cancellingRequestId);
+      const ride = request && demoState.rides.find(item => item.id === request.rideId);
+      if (!request || !ride) return closeCancelModal();
+      const selected = document.getElementById("cancel-reason").value;
+      const other = document.getElementById("cancel-other").value.trim();
+      if (selected === "Other" && !other) {
+        document.getElementById("cancel-other").focus();
+        return notify("Enter a cancellation reason.");
+      }
+      request.cancelReason = selected === "Other" ? other : selected;
+      request.cancelledBy = demoState.role;
+      request.cancelledByName = demoState.role === "driver" ? ride.driver : request.rider;
+      const requestId = request.id;
+      closeCancelModal();
+      updateRequest(requestId, "Cancelled");
     }
 
     function setDemoRole(role) {
@@ -781,20 +1095,26 @@
     function publishRide() {
       const pickup = document.getElementById("post-pickup").value.trim();
       const destination = document.getElementById("dropoff-select").value;
-      const date = document.getElementById("post-date").value.trim();
-      const time = document.getElementById("post-time").value.trim();
+      const tripType = document.getElementById("post-trip-type").value;
+      const tripDate = document.getElementById("post-trip-date").value;
+      const recurringDays = [...document.querySelectorAll('input[name="recurring-day"]:checked')].map(input => input.value);
+      const timeValue = document.getElementById("post-time").value.trim();
+      const time = formatRideTime(timeValue);
       const seats = Number(document.getElementById("post-seats").value);
       const price = document.getElementById("post-price").value.trim();
       const direction = document.getElementById("post-direction").value;
       const notes = document.getElementById("post-notes").value.trim();
-      if (!pickup || !destination || !date || !time || !seats || !price) {
-        return notify("Complete the pickup, schedule, seats, and cost fields.");
-      }
+      if (!validatePostFields({ pickup, tripType, tripDate, recurringDays, time: timeValue })) return;
+      const accessibilityFeatures = [...document.querySelectorAll('input[name="accessibility"]:checked')].map(input => input.value);
+      const holdAccessibility = document.getElementById("post-priority-seat").checked;
+      const tags = notes ? notes.split(",").map(item => item.trim()).filter(Boolean).slice(0, 3) : ["New listing", "Verified driver"];
+      if (tripType === "recurring" && !tags.includes("Recurring")) tags.unshift("Recurring");
       demoState.rides.unshift({
         id: Date.now(),
-        driver: "You (Driver)",
-        avatar: "YD",
-        rating: 5.0,
+        driver: "Nurul C.",
+        avatar: "NC",
+        rating: null,
+        newDriver: true,
         verified: true,
         isDemoDriver: true,
         route: `${pickup} → ${destination}`,
@@ -802,12 +1122,17 @@
         destination,
         direction,
         time,
-        date,
+        date: tripType === "recurring" ? recurringDays.join(", ") : `One-time · ${formatTripDate(tripDate)}`,
+        tripType,
+        tripDate,
+        recurringDays,
         seats,
         price: price.startsWith("$") ? price : `$${price}`,
         match: 98,
-        tags: notes ? notes.split(",").map(item => item.trim()).filter(Boolean).slice(0, 3) : ["New listing", "Verified driver"],
-        carbonSaved: "4.0 lb CO₂"
+        tags,
+        carbonSaved: "4.0 lb CO₂",
+        accessibilityFeatures,
+        holdAccessibility
       });
       demoState.draft = null;
       demoState.role = "driver";
@@ -820,16 +1145,71 @@
       notify("Ride published. Switch to Rider to request a seat.");
     }
 
+    function validatePostFields(values) {
+      const fields = [
+        ["post-pickup", values.pickup],
+        ["post-time", values.time]
+      ];
+      let valid = true;
+      fields.forEach(([id, value]) => {
+        const input = document.getElementById(id);
+        const error = document.getElementById(`${id}-error`);
+        const missing = !value;
+        input.classList.toggle("invalid", missing);
+        input.setAttribute("aria-invalid", String(missing));
+        error.classList.toggle("visible", missing);
+        if (missing) valid = false;
+      });
+      const missingDate = values.tripType === "one-time" && !values.tripDate;
+      const dateInput = document.getElementById("post-trip-date");
+      dateInput.classList.toggle("invalid", missingDate);
+      dateInput.setAttribute("aria-invalid", String(missingDate));
+      document.getElementById("post-trip-date-error").classList.toggle("visible", missingDate);
+      const missingDays = values.tripType === "recurring" && values.recurringDays.length === 0;
+      document.getElementById("post-recurring-error").classList.toggle("visible", missingDays);
+      valid = valid && !missingDate && !missingDays;
+      if (!valid) {
+        (document.querySelector(".invalid") || (missingDays && document.querySelector('input[name="recurring-day"]')))?.focus();
+        notify("Complete the required fields.");
+      }
+      return valid;
+    }
+
+    function clearFieldError(id) {
+      const input = document.getElementById(id);
+      if (!input.value.trim()) return;
+      input.classList.remove("invalid");
+      input.setAttribute("aria-invalid", "false");
+      document.getElementById(`${id}-error`).classList.remove("visible");
+    }
+
+    function toggleTripType() {
+      const isRecurring = document.getElementById("post-trip-type").value === "recurring";
+      document.getElementById("post-trip-date-wrap").classList.toggle("hidden", isRecurring);
+      document.getElementById("post-recurring-wrap").classList.toggle("hidden", !isRecurring);
+      clearScheduleError();
+    }
+
+    function clearScheduleError() {
+      document.getElementById("post-trip-date").classList.remove("invalid");
+      document.getElementById("post-trip-date-error").classList.remove("visible");
+      document.getElementById("post-recurring-error").classList.remove("visible");
+    }
+
     function saveDraft() {
       demoState.draft = {
         pickup: document.getElementById("post-pickup").value,
         direction: document.getElementById("post-direction").value,
         destination: document.getElementById("dropoff-select").value,
-        date: document.getElementById("post-date").value,
+        tripType: document.getElementById("post-trip-type").value,
+        tripDate: document.getElementById("post-trip-date").value,
+        recurringDays: [...document.querySelectorAll('input[name="recurring-day"]:checked')].map(input => input.value),
         time: document.getElementById("post-time").value,
         seats: document.getElementById("post-seats").value,
         price: document.getElementById("post-price").value,
-        notes: document.getElementById("post-notes").value
+        notes: document.getElementById("post-notes").value,
+        accessibilityFeatures: [...document.querySelectorAll('input[name="accessibility"]:checked')].map(input => input.value),
+        holdAccessibility: document.getElementById("post-priority-seat").checked
       };
       saveDemoState();
       notify("Draft saved in this browser.");
@@ -841,17 +1221,38 @@
       document.getElementById("post-pickup").value = draft.pickup || "";
       document.getElementById("post-direction").value = draft.direction || "Home → Campus";
       document.getElementById("dropoff-select").value = draft.destination || "";
-      document.getElementById("post-date").value = draft.date || "";
-      document.getElementById("post-time").value = draft.time || "";
+      const inferredDays = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].filter(day => String(draft.date || "").includes(day));
+      const tripType = draft.tripType || (inferredDays.length ? "recurring" : "one-time");
+      document.getElementById("post-trip-type").value = tripType;
+      document.getElementById("post-trip-date").value = draft.tripDate || (/^\d{4}-\d{2}-\d{2}$/.test(draft.date || "") ? draft.date : "");
+      document.querySelectorAll('input[name="recurring-day"]').forEach(input => {
+        input.checked = (draft.recurringDays || inferredDays).includes(input.value);
+      });
+      toggleTripType();
+      document.getElementById("post-time").value = timeInputValue(draft.time);
       document.getElementById("post-seats").value = draft.seats || "2";
       document.getElementById("post-price").value = draft.price || "$3.50";
       document.getElementById("post-notes").value = draft.notes || "";
+      document.querySelectorAll('input[name="accessibility"]').forEach(input => {
+        input.checked = (draft.accessibilityFeatures || []).includes(input.value);
+      });
+      document.getElementById("post-priority-seat").checked = Boolean(draft.holdAccessibility);
     }
 
     function clearPostForm() {
-      ["post-pickup", "post-date", "post-time", "post-notes"].forEach(id => document.getElementById(id).value = "");
+      ["post-pickup", "post-trip-date", "post-time", "post-notes"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("post-trip-type").value = "one-time";
+      document.querySelectorAll('input[name="recurring-day"]').forEach(input => input.checked = false);
+      toggleTripType();
       document.getElementById("post-seats").value = "2";
       document.getElementById("post-price").value = "$3.50";
+      document.querySelectorAll('input[name="accessibility"]').forEach(input => input.checked = false);
+      document.getElementById("post-priority-seat").checked = false;
+      ["post-pickup", "post-time"].forEach(id => {
+        document.getElementById(id).classList.remove("invalid");
+        document.getElementById(`${id}-error`).classList.remove("visible");
+      });
+      clearScheduleError();
     }
 
     function openMessages(requestId) {
@@ -884,9 +1285,11 @@
       const text = input.value.trim();
       if (!text || !activeRequestId) return;
       if (!demoState.messages[activeRequestId]) demoState.messages[activeRequestId] = [];
+      const request = demoState.requests.find(item => item.id === activeRequestId);
+      const ride = request && demoState.rides.find(item => item.id === request.rideId);
       demoState.messages[activeRequestId].push({
         sender: demoState.role,
-        name: demoState.role === "driver" ? "Ayesha" : "Jordan",
+        name: demoState.role === "driver" ? (ride?.driver.split(" ")[0] || "Driver") : "Jordan",
         text
       });
       input.value = "";
@@ -898,8 +1301,11 @@
       if (!window.confirm("Reset all demo rides, requests, messages, and drafts?")) return;
       demoState = initialDemoState();
       saveDemoState();
+      accessibleOnly = false;
+      document.getElementById("accessible-filter").classList.remove("primary");
       document.getElementById("demo-role").value = "rider";
       closeMessages();
+      closeCancelModal();
       clearPostForm();
       renderRides();
       renderTrips();
