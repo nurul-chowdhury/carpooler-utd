@@ -30,7 +30,7 @@ Also try: **Cancel trip** (you'll be asked for a reason), the **Accessible rides
 
 **Trip lifecycle**
 - Ride posting with validation: one-time (date) or recurring (weekday) schedules
-- Seat requests, accept/decline, and live seat counts, with a *Full* state at zero seats
+- Seat requests, accept/decline, and live seat counts that update as seats are booked or released
 - Role-specific trip cards: driver and rider each see only the actions and wording that apply to them
 - Cancellation after acceptance with a reason (*No-show, Destination changed, Running late, Other*) that is shown to the other person
 - Completion, 1–5 star ratings, and trip history
